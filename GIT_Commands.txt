@@ -1,0 +1,158 @@
+    1  pwd
+    2  git --version
+    3  mkdir wsp
+    4  cd wsp
+    5  git clone https://git.jlrngi.com/kernel/linux-stable.git
+    6  ls
+    7  ls -al ~/.ssh
+    8  cd ~/.ssh
+    9  ls
+   10  cd ..
+   11  pwd
+   12  ssh-keygen -t rsa -C "schakrav@jaguarlandrover.com"
+   13  cd ~/.ssh
+   14  ls
+   15  cat id_rsa.pub
+   16  ls
+   17  rm -rf *
+   18  cd $HOME
+   19  pwd
+   20  git
+   21  clear
+   22  git help
+   23  git help log
+   24  clear
+   25  ls
+   26  cd Music/
+   27  ls
+   28  mkdir First_GIT_Project
+   29  cd First_GIT_Project/
+   30  ls
+   31  clear
+   32  ls -a
+   33  clear
+   34  git init
+   35  ls -a
+   36  cd .git/
+   37  ls
+   38  cd ..
+   39  ls
+   40  ls -la .git/
+   41  cat .git/config 
+   42  touch first_file.txt
+   43  vi first_file.txt
+   44  clear
+   45  cat first_file.txt 
+   46  clear
+   47  git add first_file.txt 
+   48  git status
+   49  git log
+   50  git -m "First file added"
+   51  git -m "First file added"
+   52  clear
+   53  git status
+   54  clear
+   55  git commit -m "First file added to master"
+   56  clear
+   57  git log
+   58  clear
+   59  clear
+   60  ls
+   61  git log --online
+   62  git log --oneline
+   63  git -v branch
+   64  git branch
+   65  clear
+   66  git branch
+   67  git log#
+   68  git log
+   69  git log -n 1
+   70  git log -n 2
+   71* git log --since=
+   72  git log --since=2017-7-5
+   73  git log --until=2017-7-5
+   74  git log --until=2017-7-17
+   75  git log --author="NGI"
+   76  git log --grep"init"
+   77  git log --grep"added"
+   78  git log --grep="added"
+   79  clear
+   80  git log
+   81  clear
+   82  git status
+   83  git log
+   84  cd ..
+   85  ls
+   86  clear
+   87  git log
+   88  ls
+   89  cd First_GIT_Project/
+   90  ls
+   91  git log
+   92  cd ..
+   93  git remote
+   94  cd First_GIT_Project/
+   95  git remote
+   96  git remote origin  <url>
+   97  git remote add origin https://github.com/rohitbenake/First_GIT_Project.git
+   98  git remote
+   99  git remote -v
+  100  ls -al
+  101  clear
+  102  ls .git/config 
+  103  cat .git/config 
+  104  git push -u origin master
+  105  git push -u origin master
+  106  cd ..
+  107  mkdir Remote_GIT_Project
+  108  cd Remote_GIT_Project/
+  109  git init
+  110  clear
+  111  git remote -v
+  112  git remote add origin https://github.com/rohitbenake/First_GIT_Project.git
+  113  git remote -v
+  114  git push -u origin master
+  115  ls
+  116  ls -al
+  117  cd ..
+  118  ls
+  119  dc First_GIT_Project/
+  120  ls
+  121  clear
+  122  git push -u origin master
+  123  cd First_GIT_Project/
+  124  clear
+  125  git push -u origin master
+  126  ls -al
+  127  cat .git/config 
+  128  cd ..
+  129  ls
+  130  cd Remote_GIT_Project/
+  131  clear
+  132  ls
+  133  ls -al
+  134  git clone https://github.com/rohitbenake/First_GIT_Project.git
+  135  ls
+  136  cd First_GIT_Project/
+  137  ls
+  138  ls -al
+  139  clear
+  140  ls
+  141  git branch
+  142  touch randomfile.txt
+  143  vi randomfile.txt 
+  144  clear
+  145  git status
+  146  git add -a randomfile.txt 
+  147  git add  randomfile.txt 
+  148  clear
+  149  git status
+  150  git commit -m "Added randomfile.txt to remote repo"
+  151  git status
+  152  cat .git/config 
+  153  git push -u origin master
+  154  git status
+  155  clear
+  156  history
+  157  clear
+  158  history >>/home/ngi/Music/GIT_Commands.txt
