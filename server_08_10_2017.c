@@ -384,7 +384,7 @@ int establishChannels(int socketFds[])
 	int    max_sd, new_sd;
 	int    desc_ready, end_server = FALSE;
 	char   buffer[80];
-	struct sockaddr_in   clientAddr;
+	//struct sockaddr_in   clientAddr;
 
 	struct timeval       timeout;
 	fd_set        master_set, working_set;
@@ -450,7 +450,11 @@ int establishChannels(int socketFds[])
 			{
 				printf("Command Channel established\n");
 
-				new_sd = accept(socketFds[index], NULL, NULL);
+				struct sockaddr_in   clientAddr;
+				socklen_t cli_addr_size = sizeof(clientAddr);
+				//new_sd = accept(socketFds[index], NULL, NULL);
+				new_sd = accept(socketFds[index],(struct sockaddr *)&clientAddr, &cli_addr_size);
+
 				if (new_sd < 0)
 				{
 					if (errno != EWOULDBLOCK)
@@ -461,7 +465,12 @@ int establishChannels(int socketFds[])
 					break;//for loop
 				}
 
-				printf("  New incoming connection for command channel: %d\n", new_sd);
+				printf("  New incoming connection for this channel is : %d\n", new_sd);
+				printf("  New incoming connection port : %d\n", clientAddr.sin_port);
+
+				char str[INET_ADDRSTRLEN];						
+				inet_ntop(AF_INET, &(clientAddr.sin_addr), str, INET_ADDRSTRLEN);
+				printf("  New incoming connection Address : %s\n", str);
 				
 				//store cmd channel fd			
 				fds[index] = new_sd;
