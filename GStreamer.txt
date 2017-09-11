@@ -1,0 +1,7 @@
+GstBuffer * buffer = gst_buffer_new_and_alloc(len);
+gst_buffer_fill(buffer, 0, buf, len);
+int ret = gst_app_src_push_buffer((GstAppSrc *) vid_src, buffer);
+
+GstBuffer * buffer = gst_buffer_new_and_alloc(len);
+memcpy(GST_BUFFER_DATA(buffer), buf, len);
+int ret = gst_app_src_push_buffer(vid_src, buffer);
