@@ -1,0 +1,142 @@
+In character encoding terminology, a code point or code position is any of the numerical values that make up the code space
+
+the character encoding scheme ASCII comprises 128 code points in the range 0hex to 7Fhex,
+
+Extended ASCII comprises 256 code points in the range 0hex to FFhex,
+
+Unicode comprises 1,114,112 code points in the range 0hex to 10FFFFhex
+The Unicode code space is divided into seventeen planes (the basic multilingual plane, and 16 supplementary planes), each with 65,536 (= 2^16) code points. Thus the total size of the Unicode code space is 17 × 65,536 = 1,114,112
+	a plane is a continuous group of 65,536 (216) code points.
+	planes, identified by the numbers 0 to 16, which corresponds with the possible values 00–1016 of the first two positions in six position hexadecimal format (U+'hh'hhhh)
+	Plane 0 is the Basic Multilingual Plane (BMP),which contains most commonly-used characters.
+	The higher planes 1 through 16 are called "supplementary planes"
+	
+	The limit of 17 planes is due to UTF-16, which can encode 220 code points (16 planes) as pairs of words, plus the BMP as a single word.
+	UTF-8 was designed with a much larger limit of 231 (2,147,483,648) code points (32,768 planes), and can encode 221 (2,097,152) code points (32 planes) even under the current limit of 4 bytes.[3]
+	
+***************************************************************************************************************************
+The notion of a code point is used for abstraction, to distinguish both:
+	the number from an encoding as a sequence of bits, and
+	the abstract character from a particular graphical representation (glyph).	
+	
+	
+UTF-8:
+Since the restriction of the Unicode code-space to 21-bit values in 2003, UTF-8 is defined to encode code points in one to four bytes, depending on the number of significant bits in the numerical value of the code point.	
+
+    // Source: https://en.wikipedia.org/wiki/UTF-8
+    // Number          Bits for        First           Last            Byte 1      Byte 2      Byte 3      Byte 4
+    // of bytes        code point      code point      code point									
+    // 1               7               U + 0000        U + 007F        0xxxxxxx    
+    // 2               11              U + 0080        U + 07FF        110xxxxx    10xxxxxx
+    // 3               16              U + 0800        U + FFFF        1110xxxx    10xxxxxx    10xxxxxx
+    // 4               21              U + 10000       U + 10FFFF      11110xxx    10xxxxxx    10xxxxxx    10xxxxxx
+	
+The first 128(2^7) characters (US-ASCII) need one byte
+ The next 1,920(2^11 - 2^7) characters need two bytes to encode (which covers the remainder of almost all Latin-script alphabets, and also Greek, Cyrillic, Coptic, Armenian, Hebrew, Arabic, Syriac, Thaana and N'Ko alphabets, as well as Combining Diacritical Marks.)
+ Three bytes are needed for characters in the rest of the Basic Multilingual Plane, which contains virtually all characters in common use[13] including most Chinese, Japanese and Korean characters.	
+ Four bytes are needed for characters in the other planes of Unicode, which include less common CJK characters, various historic scripts, mathematical symbols, and emoji (pictographic symbols)
+ 
+ 
+ Backward compatibility:In UTF-8, single bytes with values in the range of 0 to 127 map directly to Unicode code points in the ASCII range. Single bytes in this range represent characters, as they do in ASCII. Moreover, 7-bit bytes (bytes where the most significant bit is 0) never appear in a multi-byte sequence, and no valid multi-byte sequence decodes to an ASCII code-point.
+						Thus, many text processors, parsers, protocols, file formats, text display programs etc., which use ASCII characters for formatting and control purposes will continue to work as intended by treating the UTF-8 byte stream as a sequence of single-byte characters
+
+Example:
+Consider the encoding of the Euro sign, €.
+	1]The Unicode code point for "€" is U+20AC.
+	2]According to the scheme table above, this will take three bytes to encode, since it is between U+0800 and U+FFFF.
+	3]Hexadecimal 20AC is binary 0010 0000 1010 1100.( The two leading zeros are added because, as the scheme table shows, a three-byte encoding needs exactly sixteen bits from the code point.)
+	4]Because the encoding will be three bytes long, its leading byte starts with three 1s, then a 0 (1110...)
+	5]The four most significant bits of the code point are stored in the remaining low order four bits of this byte (1110 0010[2 of 20AC]), leaving 12 bits of the code point yet to be encoded (...0000 1010 1100).
+	6]All continuation bytes contain exactly six bits from the code point. So the next six bits of the code point are stored in the low order six bits of the next byte, and 10 is stored in the high order two bits to mark it as a continuation byte (so 1000 0010).[10 0000 10(this is of 1010)]
+	7]Finally the last six bits of the code point are stored in the low order six bits of the final byte, and again 10 is stored in the high order two bits (1010 1100).[10 10(of 1010) 1100]
+
+The three bytes 1110 0010 1000 0010 1010 1100 can be more concisely written in hexadecimal, as E2 82 AC.
+	
+
+xxxx xxxx
+11xx xxxx
+1000 0000
+
+
+Outout :
+Text 
+dst[0] = ffffffe2 
+dst[1] = ffffff82 
+dst[2] = ffffffac 
+***************
+utf8 = 82 
+IsInnerCharacter
+ 1
+utf8 = ac 
+IsInnerCharacter
+ 1 
+/*****************************************************************************************************/
+// Example program
+#include <iostream>
+#include <string>
+#include <stdio.h>
+
+bool IsInnerCharacter(char c)
+{
+    bool status =false;
+    const unsigned char utf8 = static_cast<unsigned char>(c);
+    status = (utf8 & 0xC0) == 0x80;
+    printf("\nutf8 = %x ",utf8);
+    std::cout<<"\nIsInnerCharacter\n "<<status;
+    return status;
+}
+
+
+int main()
+{
+  std::string name;
+  std::cout << "Text ";
+ 
+    std::string erasedText = "";
+    std::string dst = "€";
+    unsigned int length = dst.size();
+    for(unsigned int index = 0; index < length ;index++ )    
+        printf("\ndst[%d] = %x ",index,dst[index]);
+    
+   printf("\n***************");
+    
+   unsigned int position = 1;
+    for (;;) {				
+    	erasedText.push_back(dst[position-1]);
+    	if ((position == length) || !IsInnerCharacter(dst[position]) ) {
+    		break;
+    	}
+    	++position;
+    }			
+
+}
+
+/*****************************************************************************************************/
+With 4byte character
+std::string dst = "𠜎";
+Text 
+dst[0] = fffffff0 
+dst[1] = ffffffa0 
+dst[2] = ffffff9c 
+dst[3] = ffffff8e 
+***************
+utf8 = a0 
+IsInnerCharacter
+ 1
+utf8 = 9c 
+IsInnerCharacter
+ 1
+utf8 = 8e 
+IsInnerCharacter
+ 1 
+
+ https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
+
+
+
+Every glyph (letter shape) in the font is a different size and shape, right? The glyph for character 'A' is taller than the glyph for character 'a', the top of the 't' glyph is different again.
+Font.ascender is the maximum value for all letter shapes (glyphs) and Font.descender is the minimum value.
+
+Any particular font could easily have an extra tall glyph that meant the Font.ascender value had no relation to the dimensions of a string that didn't contain that character.
+
+ 
