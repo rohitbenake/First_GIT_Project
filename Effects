@@ -1,0 +1,30 @@
+Brush Effect 	- 	data provided by the user -> pixel data E.g. SolidColorBrush
+In-place Effect - 	pixel data(Brush or another In-Place) - >	transform the source pixel data to destination data
+Blend Effect 	- 	is very similar to an In-place Effect , but additioanlly it takes the already computed destination data into account as an input to calculate the new destination data		  
+					This allows Blend Effects to transform the source data and the destination data to any kind of combination of both.				
+					The blend effect is responsible for setting up the alpha blending parameters, how the computed image gets “blended” into the destination surface (especially the framebuffer)
+Combined Effect - 	is a single effect which represents a whole sequence of other effects in an effect chain		   
+					A Combined Effect for Brush and Blend Effect for example is the Candera::BitmapBrushBlend
+					
+Basic Effect Properties
+	Filter					
+		When the content of a node (e.g. a texture) should be displayed in a different size than its original size ,magnification or a minification
+		If each source pixel maps onto more than one destination pixel, this is known as minification.
+		If each source pixel maps exactly onto one destination pixel, filtering is not applied
+		If each source pixel maps onto less than one destination pixel this is known as magnification.
+	
+	Values:
+		NearestFilter
+			Nearest-neighbor interpolation is the fastest and crudest filtering method
+			it simply uses the color of the source pixel closest to the center of the destination pixel for the pixel color
+			While fast, this results in a large number of artifacts - texture 'blockiness' during magnification, and aliasing and shimmering during minification
+			
+		BilinearFilter
+			Bilinear filtering is the next step up
+			In this method the four nearest source pixels to the center of the destination pixel are sampled (at the closest mipmap level), and their colors are combined by weighted average according to distance
+			This removes the 'blockiness' seen during magnification, as there is now a smooth gradient of color change from one source pixel to the next, instead of an abrupt jump as the center of the destination pixel crosses the source pixel boundary
+			Bilinear filtering is almost invariably used with mipmapping; though it can be used without, it would suffer the same aliasing and shimmering problems as nearest-neighbor filtering.
+			
+	Mip Map Filter
+		This setting is available for all effects using images and controls filtering when the image has a mipmap chain.	
+			
