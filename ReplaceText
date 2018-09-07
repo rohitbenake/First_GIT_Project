@@ -1,0 +1,227 @@
+
+#ifndef DYNAMICSTRINGHELPER_H
+#define DYNAMICSTRINGHELPER_H
+
+#include <FeatStd/Base.h>
+#include <Candera/Environment.h>
+#include <Candera/TextEngine/Types.h>
+#include <string>
+#include "FeatStd/Container/Vector.h"
+
+/**
+*  @brief 
+*  INTRODUCTION
+*	Language_ImportTable(language pack) has text for specified text ID in different Culture(Language).
+*	Depending on the current culture language translated text will be picked from language pack.
+*	[Text Ids for textcontrol will be specified in GUI Specification document]
+*
+*	TEXT TYPES
+*		There are Two types of Text:
+*		Type1_Text - These are static text without any dynamic data
+			ex. ID = AUDIO-9119 Text = No info available
+*		Type2_Text - These are static text having dynamic data
+					These Text can have more than one dynamic data.
+					$$( is the special text indicating the dynamic text and number followed by it will indicate the param number
+
+					Ex. 1.ID = IT-01039   Text = Incoming call from:$$(1:) 
+							In this example we have only one  $$(1:) dynamic data ,which should be replaced with Bt device name
+					Ex.	2.ID = New-Program-0102 Text =	Date:  $$(1:YYYY-MM-DD)
+														Successful:  $$(2:Yes/No)
+														System version: $$(3:)
+														Software version: $$(4:)
+														Name Database version: $$(5:)
+														Distance driven: $$(6:)
+							This example shows text with 6 dynamic data
+*	TEXT USAGE
+*		TextID will be specified to textControl in CGI scene composer(CGI will pick corresponding text). 
+*		If Text is updated with Data binding then text needs to be formed from text ID .Please check below API specified
+*		for Type1_Text :
+			Ex. FeatStd::String textString = Util::DynamicStringHelper::GetStringFromID("AUDIO-9119");
+
+*		for Type2_Text :	
+*			As seen in above example IT-01039 text has one dynamic data $$(1	
+			
+			FeatStd::Internal::Vector<FeatStd::String> paramVec;
+			paramVec.Add("Home"); //Add the dynamic data in vector object and use below API
+			FeatStd::String newString = Util::DynamicStringHelper::ProcessDynamicString("IT-01039",paramVec);
+
+			Note : Add multiple dynamic data in vector with order from first param to last. 	
+
+*/
+
+namespace Util {
+	class DynamicStringHelper
+	{
+		public:	
+			/*
+			* @brief Get string from string ID
+			* @params sStringId String ID corresponding string defined in Language_ImportTable.
+			* @returns String mapped to string Id
+			*/
+			static FeatStd::String GetStringFromID(FeatStd::String sStringId);
+
+			/*
+			* @brief Get string replaced with all dynamic data
+			* @params sStringId String ID corresponding string defined in Language_ImportTable.
+			* @params sParam1 vector containing dynamic data to be replaced from string 
+			* @returns String with all dynamic data replaced			*/
+			static FeatStd::String ProcessDynamicString(FeatStd::String sStringId, FeatStd::Internal::Vector<FeatStd::String> &vParamList);			
+
+			/*
+			* @brief Finds whether given substring is present in a string
+			* @params substr
+					substring with the subject to search for.
+			* @params	pos
+					Position of the first character in the string to be considered in the search.
+					If this is greater than the string length, the function never finds matches.
+				Note: The first character is denoted by a value of 0 (not 1) : A value of 0 means that the entire string is searched.
+			*/
+			static size_t Find(FeatStd::String str, FeatStd::String substr, FeatStd::UInt8 pos = 0);
+
+			/*
+			* @brief Utility function for adding a substring within given string			
+			* @params text source String reference.
+			* @params position where the text should be added.
+			* @params substring string to be added.			
+			*/
+			static void AddDynamicData(FeatStd::String &text, size_t pos, FeatStd::String substring);
+
+			/*
+			* @brief Utility function for erasing dummy data : dummy data is string between $$( and )			  
+			* @params text source String reference from which dummy data should be removed.
+			* @params position where the text should be added.
+			* @params substring string to be added.
+			* @returns String with substring added at postion pos*/
+			static bool EraseDummyData(FeatStd::String &text, size_t pos);
+			
+			/*
+			* @brief Utility function to get integer value of given character
+			* @params c
+				character to be converted to integer
+			* @returns UInt8 value of character
+			*/
+			static FeatStd::UInt8 GetIntFromChar(char c);
+
+		private:
+			#define VAR_STRING ("$$(")
+			#define VAR_STRING_END (")")
+			#define INVALID_LENGTH (std::string::npos)
+			#define INT_VAL_ONE (1)			
+			#define ASCI_ZERO ('0')		
+			FEATSTD_MAKE_CLASS_STATIC(DynamicStringHelper);
+			FEATSTD_MAKE_CLASS_UNCOPYABLE(DynamicStringHelper);
+	};
+}//namespace Util END   
+#endif //DYNAMICSTRINGHELPER_H End
+
+
+
+
+
+#include "DynamicStringHelper.h"
+#include <FeatStd/Platform/String.h>
+
+namespace Util {
+
+	FeatStd::String DynamicStringHelper::GetStringFromID(FeatStd::String sStringId)
+	{
+		if ('\0' == sStringId.GetCString())
+		{
+			return sStringId;
+		}
+
+		return FeatStd::String(FeatStd::TextId(sStringId.GetCString()));
+	}
+	
+	FeatStd::String DynamicStringHelper::ProcessDynamicString(FeatStd::String sStringId, FeatStd::Internal::Vector<FeatStd::String> &vParamList)
+	{
+		if ('\0' == sStringId.GetCString())
+		{
+			return sStringId;
+		}
+
+		FeatStd::String processedText = GetStringFromID(sStringId.GetCString());
+		if (0 == vParamList.Size())
+		{
+			return processedText;
+		}
+
+		processedText = "$$(g1jksdbgjksb3)";
+
+		size_t found = INVALID_LENGTH;
+		//Find first occurance of variable string 
+		found = Find(processedText, VAR_STRING);
+		while (INVALID_LENGTH != found)
+		{
+			FeatStd::String paramString = "";
+			FeatStd::UInt8 paramPosition = 0;
+			FeatStd::UInt8 variableStringLength = std::string(VAR_STRING).length();
+
+			if ((found + variableStringLength) < processedText.GetCodePointCount())
+			{
+				//Find which dynamic data to be replaced
+				paramPosition = GetIntFromChar(processedText.GetCString()[(found + variableStringLength)]);
+			}
+			else
+			{
+				break;//Reached End of String, string was same as variable string $$(
+			}
+
+			if ((paramPosition > 0) && (paramPosition <= vParamList.Size()))
+			{
+				paramString = vParamList[paramPosition - INT_VAL_ONE];
+				
+				if (EraseDummyData(processedText, found))
+				{
+					AddDynamicData(processedText, found, paramString);
+				}
+				else
+				{
+					break;//Invalid String for replace
+				}
+			}
+
+			found = Find(processedText, VAR_STRING, found + INT_VAL_ONE); //Find next dynamic text to be replaced 
+		}
+		return processedText;
+	}
+
+	void DynamicStringHelper::AddDynamicData(FeatStd::String &text, size_t pos, FeatStd::String substring)
+	{
+		
+		std::string str(text.GetCString());
+		str.insert(pos,substring.GetCString());		
+		text = str.c_str();
+	}
+
+	bool DynamicStringHelper::EraseDummyData(FeatStd::String &text, size_t pos)
+	{
+		size_t found = INVALID_LENGTH;
+		found = Find(text, VAR_STRING_END);
+		if (INVALID_LENGTH != found)
+		{
+			std::string str(text.GetCString());
+			str.erase(pos, (found - pos) + INT_VAL_ONE);
+			text = str.c_str();
+			return true;
+		}
+		return false;
+	}
+
+	size_t DynamicStringHelper::Find(FeatStd::String str, FeatStd::String substr, FeatStd::UInt8 pos)
+	{
+		size_t found = INVALID_LENGTH;
+		std::string text(str.GetCString());
+		found = text.find(substr.GetCString(), pos);
+		if (found != INVALID_LENGTH)
+		{
+			return found;
+		}
+		return INVALID_LENGTH;
+	}
+
+	FeatStd::UInt8 DynamicStringHelper::GetIntFromChar(char c)
+	{
+		return (c - ASCI_ZERO);//ASCII for ''0 is 48
+	}
+} //namespace util end  
